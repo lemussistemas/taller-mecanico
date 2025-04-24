@@ -28,6 +28,8 @@ urlpatterns = [
     #exportar
     path('mantenimientos/exportar/', views.exportar_mantenimientos_csv, name='mantenimientos_exportar'),
 
+#factura
+path('trabajos/<int:pk>/factura/', views.generar_factura, name='trabajo_factura'),
 ]
 
 

@@ -26,7 +26,26 @@ class Trabajo(models.Model):
     TIPOS = [
         ('GEN', 'Genérico'),
         ('ACE', 'Cambio de aceite'),
+        ('FRE', 'Cambio de frenos'),
+        ('PAR', 'Cambio de pastillas de freno'),
+        ('DIS', 'Cambio de discos de freno'),
+        ('BAL', 'Balanceo'),
+        ('ALI', 'Alineación'),
+        ('COR', 'Cambio de correa de distribución'),
+        ('FLT', 'Cambio de filtro de aire'),
+        ('FCO', 'Cambio de filtro de combustible'),
+        ('FOI', 'Cambio de filtro de aceite'),
+        ('SUS', 'Revisión de suspensión'),
+        ('AMO', 'Ajuste de motor'),
+        ('RMO', 'Reparación de motor'),
+        ('ABS', 'Inspección del sistema ABS'),
+        ('ELE', 'Reparación eléctrica'),
+        ('ACD', 'Carga de aire acondicionado'),
+        ('ESC', 'Revisión de escape'),
+        ('LUB', 'Lubricación general'),
+        ('INJ', 'Limpieza de inyectores'),
     ]
+    tipo = models.CharField(max_length=3, choices=TIPOS, default='GEN')
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     tecnico = models.CharField(max_length=100)
     tipo = models.CharField(max_length=3, choices=TIPOS, default='GEN')

@@ -15,6 +15,95 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.http import HttpResponse
 import csv
+import os
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.utils import timezone
+from .models import Trabajo
+
+def generar_factura(request, pk):
+    trabajo = get_object_or_404(Trabajo, pk=pk)
+    cliente = trabajo.vehiculo.cliente
+    vehiculo = trabajo.vehiculo
+
+    # Preparamos la respuesta
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{trabajo.id}.pdf"'
+
+    # Cargo el logo desde static/img/logo.png
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
+
+    # Lienzo ReportLab
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # Dibujo el logo (200x50px) en la esquina superior izquierda
+    if os.path.exists(logo_path):
+        p.drawImage(logo_path, 50, height - 80, width=200, height=50, preserveAspectRatio=True)
+
+    # Título
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(270, height - 60, "Factura de Servicio")
+
+    # Línea separadora
+    p.setLineWidth(1)
+    p.line(50, height - 90, width - 50, height - 90)
+
+    # Información básica (salto de 30)
+    y = height - 120
+    p.setFont("Helvetica", 12)
+    p.drawString(50, y, f"Factura #: {trabajo.id}")
+    p.drawString(300, y, f"Fecha: {timezone.now().date().isoformat()}")
+    y -= 30
+
+    # Datos del cliente
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Cliente:")
+    y -= 20
+    p.setFont("Helvetica", 12)
+    p.drawString(70, y, f"{cliente.nombre} | {cliente.telefono}")
+    y -= 20
+    p.drawString(70, y, cliente.direccion)
+    y -= 30
+
+    # Datos del vehículo
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Vehículo:")
+    y -= 20
+    p.setFont("Helvetica", 12)
+    p.drawString(70, y, f"{vehiculo.marca} {vehiculo.modelo} (Placa: {vehiculo.placa})")
+    y -= 30
+
+    # Detalle de servicio
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Detalle del Servicio:")
+    y -= 20
+    p.setFont("Helvetica", 12)
+    p.drawString(70, y, f"{trabajo.get_tipo_display()}: {trabajo.descripcion[:40]}{'...' if len(trabajo.descripcion)>40 else ''}")
+    y -= 30
+
+    # Costos y total
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Resumen de Costos:")
+    y -= 20
+    p.setFont("Helvetica", 12)
+    p.drawString(70, y, f"Partes: L {trabajo.costo_partes:.2f}")
+    y -= 20
+    p.drawString(70, y, f"Mano de obra: L {trabajo.costo_mano_obra:.2f}")
+    y -= 30
+
+    total = trabajo.costo_partes + trabajo.costo_mano_obra
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y, f"Total a Pagar: L {total:.2f}")
+
+    # Finaliza y guarda
+    p.showPage()
+    p.save()
+
+    return response
+
 
 
 def exportar_mantenimientos_csv(request):

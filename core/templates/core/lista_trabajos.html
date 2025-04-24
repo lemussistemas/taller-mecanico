@@ -37,28 +37,40 @@
       </thead>
       <tbody>
         {% for t in trabajos %}
-        <tr class="border-b hover:bg-gray-50">
-          <td class="px-4 py-2">{{ t.id }}</td>
-          <td class="px-4 py-2">{{ t.vehiculo }}</td>
-          <td class="px-4 py-2">{{ t.tecnico }}</td>
-          <td class="px-4 py-2">{{ t.get_tipo_display }}</td>
-          <td class="px-4 py-2">{{ t.fecha_ingreso|date:"Y-m-d H:i" }}</td>
-          <td class="px-4 py-2">{{ t.fecha_salida|date:"Y-m-d H:i" }}</td>
-          <td class="px-4 py-2">{{ t.ganancia }}</td>
-          <td class="px-4 py-2 space-x-1">
-            <a href="{% url 'trabajo_edit' t.pk %}"
-               class="text-blue-600 hover:underline">Editar</a>
-            <a href="{% url 'trabajo_delete' t.pk %}"
-               class="text-red-600 hover:underline">Eliminar</a>
-          </td>
-        </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-2">{{ t.id }}</td>
+            <td class="px-4 py-2">{{ t.vehiculo }}</td>
+            <td class="px-4 py-2">{{ t.tecnico }}</td>
+            <td class="px-4 py-2">{{ t.get_tipo_display }}</td>
+            <td class="px-4 py-2">{{ t.fecha_ingreso|date:"Y-m-d H:i" }}</td>
+            <td class="px-4 py-2">{{ t.fecha_salida|date:"Y-m-d H:i" }}</td>
+            <td class="px-4 py-2">{{ t.ganancia }}</td>
+   -        <td class="px-4 py-2 space-x-1">
+   -          <a href="{% url 'trabajo_edit' t.pk %}" class="text-blue-600 hover:underline">Editar</a>
+   -          <a href="{% url 'trabajo_delete' t.pk %}" class="text-red-600 hover:underline">Eliminar</a>
+   -        </td>
+   +        <td class="px-4 py-2 space-x-1">
+   +          <a href="{% url 'trabajo_edit' t.pk %}" class="text-blue-600 hover:underline">Editar</a>
+   +          <a href="{% url 'trabajo_delete' t.pk %}" class="text-red-600 hover:underline">Eliminar</a>
+   +          <a href="{% url 'trabajo_factura' t.pk %}" class="text-indigo-600 hover:underline">Factura</a>
+   +        </td>
+          </tr>
         {% empty %}
-        <tr>
-          <td colspan="8" class="px-4 py-6 text-center text-gray-500">
-            No hay trabajos registrados.
-          </td>
-        </tr>
+          <tr>
+            <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+              No hay trabajos registrados.
+            </td>
+          </tr>
         {% endfor %}
+   -    <td class="px-4 py-2 space-x-1">
+   -      {% if t.pk %}
+   -        <a href="{% url 'trabajo_edit' t.pk %}" class="text-blue-600 hover:underline">Editar</a>
+   -        <a href="{% url 'trabajo_delete' t.pk %}" class="text-red-600 hover:underline">Eliminar</a>
+   -        <a href="{% url 'trabajo_factura' t.pk %}" class="text-indigo-600 hover:underline">Factura</a>
+   -      {% else %}
+   -        —  
+   -      {% endif %}
+   -    </td>
       </tbody>
     </table>
   </div>

@@ -55,18 +55,22 @@ ROOT_URLCONF = 'taller.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'DIRS': [],
+        'DIRS': [],              # aquí vacía o si quieres otra carpeta, ponla
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                 'core.context_processors.current_year',
+                'core.context_processors.current_year',
             ],
         },
     },
+]
+
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
 ]
 
 WSGI_APPLICATION = 'taller.wsgi.application'
