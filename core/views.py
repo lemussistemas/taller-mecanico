@@ -24,6 +24,7 @@ from django.utils import timezone
 from .models import Trabajo
 from .forms import ServicioFormSet
 from django.views.generic import DeleteView
+
 def generar_factura(request, pk):
     trabajo = get_object_or_404(Trabajo, pk=pk)
     cliente = trabajo.vehiculo.cliente
@@ -82,28 +83,53 @@ def generar_factura(request, pk):
     p.drawString(50, y, "Detalle del Servicio:")
     y -= 20
     p.setFont("Helvetica", 12)
-    p.drawString(70, y, f"{trabajo.get_tipo_display()}: {trabajo.descripcion[:40]}{'...' if len(trabajo.descripcion)>40 else ''}")
-    y -= 30
-
-    # Costos y total
+    # Lista de servicios asociados
     p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, y, "Resumen de Costos:")
+    p.drawString(50, y, "Servicios:")
     y -= 20
     p.setFont("Helvetica", 12)
-    p.drawString(70, y, f"Partes: L {trabajo.costo_partes:.2f}")
+    for servicio in trabajo.servicios.all():
+        # Etiqueta + descripción
+        desc = servicio.descripcion or servicio.get_tipo_display()
+        p.drawString(70, y, f"- {servicio.get_tipo_display()}: {desc}")
+        y -= 15
+        # Costos por servicio
+        p.drawString(90, y,
+            f"Partes: L {servicio.costo_partes:.2f}   "
+            f"Mano de obra: L {servicio.costo_mano_obra:.2f}   "
+            f"Total: L {servicio.total:.2f}")
+        y -= 25
+        
+   # Detalle de todos los servicios
+     # Detalle de servicios y total
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Servicios:")
     y -= 20
-    p.drawString(70, y, f"Mano de obra: L {trabajo.costo_mano_obra:.2f}")
-    y -= 30
+    p.setFont("Helvetica", 12)
+    for servicio in trabajo.servicios.all():
+         desc = servicio.descripcion or servicio.get_tipo_display()
+         p.drawString(70, y, f"- {servicio.get_tipo_display()}: {desc}")
+         y -= 15
+         p.drawString(90, y,
+             f"Partes: L {servicio.costo_partes:.2f}   "
+             f"Mano de obra: L {servicio.costo_mano_obra:.2f}   "
+             f"Total: L {servicio.total:.2f}")
+         y -= 25
 
-    total = trabajo.costo_partes + trabajo.costo_mano_obra
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, f"Total a Pagar: L {total:.2f}")
+     # Total general (suma de todos los servicios)
+    total_general = sum(s.total for s in trabajo.servicios.all())
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, f"Total a Pagar: L {total_general:.2f}")
 
-    # Finaliza y guarda
+     # Finaliza y guarda
     p.showPage()
     p.save()
 
     return response
+
+   
+
+  
 
 
 
