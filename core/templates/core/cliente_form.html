@@ -1,0 +1,41 @@
+<!-- core/templates/core/cliente_form.html -->
+{% extends "core/base.html" %}
+{% block title %}Cliente – {{ form.instance.nombre|default:"Nuevo" }}{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">
+    {{ form.instance.pk|yesno:"Editar Cliente,Nuevo Cliente" }}
+  </h1>
+  <form method="post" class="bg-white shadow rounded p-6 space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.nombre.label_tag }}<br>
+      {{ form.nombre }}
+      {{ form.nombre.errors }}
+    </div>
+    <div>
+      {{ form.telefono.label_tag }}<br>
+      {{ form.telefono }}
+      {{ form.telefono.errors }}
+    </div>
+    <div>
+      {{ form.email.label_tag }}<br>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </div>
+    <div>
+      {{ form.direccion.label_tag }}<br>
+      {{ form.direccion }}
+      {{ form.direccion.errors }}
+    </div>
+    <div class="flex space-x-2">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+        Guardar
+      </button>
+      <a href="{% url 'cliente_list' %}"
+         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+        Cancelar
+      </a>
+    </div>
+  </form>
+{% endblock %}

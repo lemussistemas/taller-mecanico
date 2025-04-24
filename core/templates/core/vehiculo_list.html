@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% block title %}Vehículos{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">Vehículos</h1>
+  <div class="overflow-x-auto bg-white shadow rounded">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="px-4 py-3">Placa</th>
+          <th class="px-4 py-3">Marca</th>
+          <th class="px-4 py-3">Modelo</th>
+          <th class="px-4 py-3">Año</th>
+          <th class="px-4 py-3">Cliente</th>
+          <th class="px-4 py-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vehiculos %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-2">{{ v.placa }}</td>
+          <td class="px-4 py-2">{{ v.marca }}</td>
+          <td class="px-4 py-2">{{ v.modelo }}</td>
+          <td class="px-4 py-2">{{ v.anio }}</td>
+          <td class="px-4 py-2">{{ v.cliente.nombre }}</td>
+          <td class="px-4 py-2 space-x-2">
+            <a href="{% url 'vehiculo_edit' v.pk %}" class="text-blue-600 hover:underline">Editar</a>
+            <a href="{% url 'vehiculo_delete' v.pk %}" class="text-red-600 hover:underline">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay vehículos.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if is_paginated %}
+    <div class="mt-6 flex justify-center items-center space-x-2">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">« Anterior</a>
+      {% endif %}
+      <span class="px-3 py-1 bg-gray-100 rounded">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">Siguiente »</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

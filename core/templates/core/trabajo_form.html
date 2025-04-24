@@ -1,0 +1,63 @@
+<!-- core/templates/core/trabajo_form.html -->
+{% extends "core/base.html" %}
+{% block title %}Trabajo – {% if form.instance.pk %}#{{ form.instance.pk }}{% else %}Nuevo{% endif %}{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">
+    {% if form.instance.pk %}Editar Trabajo #{{ form.instance.pk }}{% else %}Nuevo Trabajo{% endif %}
+  </h1>
+
+  <form method="post" class="bg-white shadow rounded p-6 space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.vehiculo.label_tag }}<br>
+      {{ form.vehiculo }}
+      {{ form.vehiculo.errors }}
+    </div>
+    <div>
+      {{ form.tecnico.label_tag }}<br>
+      {{ form.tecnico }}
+      {{ form.tecnico.errors }}
+    </div>
+    <div>
+      {{ form.tipo.label_tag }}<br>
+      {{ form.tipo }}
+      {{ form.tipo.errors }}
+    </div>
+    <div>
+      {{ form.kilometraje_registrado.label_tag }}<br>
+      {{ form.kilometraje_registrado }}
+      {{ form.kilometraje_registrado.errors }}
+    </div>
+    <div>
+      {{ form.descripcion.label_tag }}<br>
+      {{ form.descripcion }}
+      {{ form.descripcion.errors }}
+    </div>
+    <div>
+      {{ form.costo_partes.label_tag }}<br>
+      {{ form.costo_partes }}
+      {{ form.costo_partes.errors }}
+    </div>
+    <div>
+      {{ form.costo_mano_obra.label_tag }}<br>
+      {{ form.costo_mano_obra }}
+      {{ form.costo_mano_obra.errors }}
+    </div>
+    <div>
+      {{ form.precio_cobrado.label_tag }}<br>
+      {{ form.precio_cobrado }}
+      {{ form.precio_cobrado.errors }}
+    </div>
+    <div class="flex space-x-2">
+      <button type="submit"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+        Guardar
+      </button>
+      <a href="{% url 'lista_trabajos' %}"
+         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+        Cancelar
+      </a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% block title %}Mantenimientos{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">Próximos Cambios de Aceite</h1>
+  <div class="overflow-x-auto bg-white shadow rounded">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="px-4 py-3">Vehículo</th>
+          <th class="px-4 py-3">Cliente</th>
+          <th class="px-4 py-3">Próximo km</th>
+          <th class="px-4 py-3">Km rest.</th>
+          <th class="px-4 py-3">Próx. fecha</th>
+          <th class="px-4 py-3">Meses rest.</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in mantenimientos %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-2">{{ m.vehiculo }}</td>
+          <td class="px-4 py-2">{{ m.cliente.nombre }}</td>
+          <td class="px-4 py-2">{{ m.proximo_km }}</td>
+          <td class="px-4 py-2">{{ m.km_restantes }}</td>
+          <td class="px-4 py-2">{{ m.proxima_fecha|date:"Y-m-d" }}</td>
+          <td class="px-4 py-2">{{ m.meses_restantes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay mantenimientos programados.</td>
+        </tr>
+        {% endfor %}
+        <div class="flex justify-end mb-4">
+          <a href="{% url 'mantenimientos_exportar' %}"
+             class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
+            Exportar CSV
+          </a>
+        </div>
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}
+{% block title %}Confirmar Eliminación{% endblock %}
+{% block content %}
+<h1 class="text-xl mb-4">¿Eliminar {{ object }}?</h1>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Eliminar</button>
+  <a href="{% url 'lista_trabajos' %}" class="ml-4">Cancelar</a>
+</form>
+{% endblock %}

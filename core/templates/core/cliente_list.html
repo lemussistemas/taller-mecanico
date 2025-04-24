@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">Clientes</h1>
+  <div class="overflow-x-auto bg-white shadow rounded">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="px-4 py-3">Nombre</th>
+          <th class="px-4 py-3">Teléfono</th>
+          <th class="px-4 py-3">Email</th>
+          <th class="px-4 py-3">Dirección</th>
+          <th class="px-4 py-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-2">{{ c.nombre }}</td>
+          <td class="px-4 py-2">{{ c.telefono }}</td>
+          <td class="px-4 py-2">{{ c.email }}</td>
+          <td class="px-4 py-2">{{ c.direccion }}</td>
+          <td class="px-4 py-2 space-x-2">
+            <a href="{% url 'cliente_edit' c.pk %}" class="text-blue-600 hover:underline">Editar</a>
+            <a href="{% url 'cliente_delete' c.pk %}" class="text-red-600 hover:underline">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-4 py-6 text-center text-gray-500">No hay clientes.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if is_paginated %}
+    <div class="mt-6 flex justify-center items-center space-x-2">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">« Anterior</a>
+      {% endif %}
+      <span class="px-3 py-1 bg-gray-100 rounded">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">Siguiente »</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

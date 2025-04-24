@@ -1,0 +1,53 @@
+<!-- core/templates/core/vehiculo_form.html -->
+{% extends "core/base.html" %}
+{% block title %}Vehículo – {{ form.instance.placa|default:"Nuevo" }}{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">
+    {{ form.instance.pk|yesno:"Editar Vehículo,Nuevo Vehículo" }}
+  </h1>
+
+  <form method="post" class="bg-white shadow rounded p-6 space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.cliente.label_tag }}<br>
+      {{ form.cliente }}
+      {{ form.cliente.errors }}
+    </div>
+    <div>
+      {{ form.placa.label_tag }}<br>
+      {{ form.placa }}
+      {{ form.placa.errors }}
+    </div>
+    <div>
+      {{ form.marca.label_tag }}<br>
+      {{ form.marca }}
+      {{ form.marca.errors }}
+    </div>
+    <div>
+      {{ form.modelo.label_tag }}<br>
+      {{ form.modelo }}
+      {{ form.modelo.errors }}
+    </div>
+    <div>
+      {{ form.anio.label_tag }}<br>
+      {{ form.anio }}
+      {{ form.anio.errors }}
+    </div>
+    <div>
+      {{ form.kilometraje_actual.label_tag }}<br>
+      {{ form.kilometraje_actual }}
+      {{ form.kilometraje_actual.errors }}
+    </div>
+    <div class="flex space-x-2">
+      <button type="submit"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+        Guardar
+      </button>
+      <a href="{% url 'vehiculo_list' %}"
+         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+        Cancelar
+      </a>
+    </div>
+  </form>
+{% endblock %}

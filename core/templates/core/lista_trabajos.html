@@ -1,0 +1,79 @@
+{% extends "core/base.html" %}
+
+{% block title %}Trabajos{% endblock %}
+
+{% block content %}
+  <h1 class="text-3xl font-semibold mb-6">Trabajos</h1>
+
+  <form method="get" class="mb-6 flex flex-wrap gap-2">
+    <input name="tecnico" type="text" value="{{ request.GET.tecnico }}" placeholder="Técnico"
+           class="border rounded px-3 py-2 w-1/4 focus:outline-none focus:ring"/>
+    <input name="fecha_desde" type="date" value="{{ request.GET.fecha_desde }}"
+           class="border rounded px-3 py-2 focus:outline-none focus:ring"/>
+    <input name="fecha_hasta" type="date" value="{{ request.GET.fecha_hasta }}"
+           class="border rounded px-3 py-2 focus:outline-none focus:ring"/>
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+      Filtrar
+    </button>
+    <a href="{% url 'lista_trabajos' %}"
+       class="text-gray-600 px-4 py-2 rounded hover:bg-gray-100 transition">
+      Limpiar
+    </a>
+  </form>
+
+  <div class="overflow-x-auto bg-white shadow rounded">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="px-4 py-3">#</th>
+          <th class="px-4 py-3">Vehículo</th>
+          <th class="px-4 py-3">Técnico</th>
+          <th class="px-4 py-3">Tipo</th>
+          <th class="px-4 py-3">Ingreso</th>
+          <th class="px-4 py-3">Salida</th>
+          <th class="px-4 py-3">Ganancia</th>
+          <th class="px-4 py-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in trabajos %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-2">{{ t.id }}</td>
+          <td class="px-4 py-2">{{ t.vehiculo }}</td>
+          <td class="px-4 py-2">{{ t.tecnico }}</td>
+          <td class="px-4 py-2">{{ t.get_tipo_display }}</td>
+          <td class="px-4 py-2">{{ t.fecha_ingreso|date:"Y-m-d H:i" }}</td>
+          <td class="px-4 py-2">{{ t.fecha_salida|date:"Y-m-d H:i" }}</td>
+          <td class="px-4 py-2">{{ t.ganancia }}</td>
+          <td class="px-4 py-2 space-x-1">
+            <a href="{% url 'trabajo_edit' t.pk %}"
+               class="text-blue-600 hover:underline">Editar</a>
+            <a href="{% url 'trabajo_delete' t.pk %}"
+               class="text-red-600 hover:underline">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+            No hay trabajos registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="mt-6 flex justify-center items-center space-x-2">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">« Anterior</a>
+    {% endif %}
+    <span class="px-3 py-1 bg-gray-100 rounded">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">Siguiente »</a>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}
