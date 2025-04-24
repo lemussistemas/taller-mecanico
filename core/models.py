@@ -23,46 +23,19 @@ class Vehiculo(models.Model):
         return f"{self.marca} {self.modelo} – {self.placa}"
 
 class Trabajo(models.Model):
-    TIPOS = [
-        ('GEN', 'Genérico'),
-        ('ACE', 'Cambio de aceite'),
-        ('FRE', 'Cambio de frenos'),
-        ('PAR', 'Cambio de pastillas de freno'),
-        ('DIS', 'Cambio de discos de freno'),
-        ('BAL', 'Balanceo'),
-        ('ALI', 'Alineación'),
-        ('COR', 'Cambio de correa de distribución'),
-        ('FLT', 'Cambio de filtro de aire'),
-        ('FCO', 'Cambio de filtro de combustible'),
-        ('FOI', 'Cambio de filtro de aceite'),
-        ('SUS', 'Revisión de suspensión'),
-        ('AMO', 'Ajuste de motor'),
-        ('RMO', 'Reparación de motor'),
-        ('ABS', 'Inspección del sistema ABS'),
-        ('ELE', 'Reparación eléctrica'),
-        ('ACD', 'Carga de aire acondicionado'),
-        ('ESC', 'Revisión de escape'),
-        ('LUB', 'Lubricación general'),
-        ('INJ', 'Limpieza de inyectores'),
-    ]
-    tipo = models.CharField(max_length=3, choices=TIPOS, default='GEN')
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     tecnico = models.CharField(max_length=100)
-    tipo = models.CharField(max_length=3, choices=TIPOS, default='GEN')
     fecha_ingreso = models.DateTimeField(default=timezone.now)
     fecha_salida = models.DateTimeField(null=True, blank=True)
     kilometraje_registrado = models.PositiveIntegerField(null=True, blank=True)
-    descripcion = models.TextField()
-    costo_partes = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    costo_mano_obra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    precio_cobrado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Trabajo #{self.id} – {self.vehiculo}"
 
     @property
     def ganancia(self):
-        return self.precio_cobrado - (self.costo_partes + self.costo_mano_obra)
-
-    def __str__(self):
-        return f"Trabajo #{self.id} – {self.get_tipo_display()}"
+        # Suma el total de cada servicio asociado
+        return sum(servicio.total for servicio in self.servicios.all())
 
 class CambioAceite(models.Model):
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
@@ -81,3 +54,45 @@ class CambioAceite(models.Model):
 
     def __str__(self):
         return f"Cambio de aceite #{self.id} – {self.vehiculo}"
+
+class Servicio(models.Model):
+    trabajo = models.ForeignKey(
+        Trabajo,
+        on_delete=models.CASCADE,
+        related_name='servicios'
+    )
+    tipo = models.CharField(
+        max_length=3,
+        choices=[
+            ('GEN', 'Genérico'),
+            ('ACE', 'Cambio de aceite'),
+            ('FRE', 'Cambio de frenos'),
+            ('PAR', 'Cambio de pastillas de freno'),
+            ('DIS', 'Cambio de discos de freno'),
+            ('BAL', 'Balanceo'),
+            ('ALI', 'Alineación'),
+            ('COR', 'Cambio de correa de distribución'),
+            ('FLT', 'Cambio de filtro de aire'),
+            ('FCO', 'Cambio de filtro de combustible'),
+            ('FOI', 'Cambio de filtro de aceite'),
+            ('SUS', 'Revisión de suspensión'),
+            ('AMO', 'Ajuste de motor'),
+            ('RMO', 'Reparación de motor'),
+            ('ABS', 'Inspección del sistema ABS'),
+            ('ELE', 'Reparación eléctrica'),
+            ('ACD', 'Carga de aire acondicionado'),
+            ('ESC', 'Revisión de escape'),
+            ('LUB', 'Lubricación general'),
+            ('INJ', 'Limpieza de inyectores'),
+        ],
+    )
+    descripcion = models.TextField(blank=True)
+    costo_partes = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    costo_mano_obra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    @property
+    def total(self):
+        return self.costo_partes + self.costo_mano_obra
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} (#{self.pk})"

@@ -2,6 +2,25 @@
 {% block title %}Mantenimientos{% endblock %}
 {% block content %}
   <h1 class="text-3xl font-semibold mb-6">Próximos Cambios de Aceite</h1>
+
+  <!-- Toast de alerta Alpine.js -->
+  <div
+    x-data="{ show: {{ due_count }} > 0 }"
+    x-show="show"
+    x-transition
+    x-init="setTimeout(() => show = false, 5000)"
+    class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow">
+    ¡Tienes {{ due_count }} mantenimiento(s) próximos a vencer!
+  </div>
+
+  <!-- Botón Exportar CSV -->
+  <div class="flex justify-end mb-4">
+    <a href="{% url 'mantenimientos_exportar' %}"
+       class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
+      Exportar CSV
+    </a>
+  </div>
+
   <div class="overflow-x-auto bg-white shadow rounded">
     <table class="min-w-full">
       <thead class="bg-gray-100 text-left">
@@ -16,7 +35,7 @@
       </thead>
       <tbody>
         {% for m in mantenimientos %}
-        <tr class="border-b hover:bg-gray-50">
+        <tr class="border-b hover:bg-gray-50 {% if m.km_restantes <= 500 or m.meses_restantes <= 1 %}bg-red-100{% endif %}">
           <td class="px-4 py-2">{{ m.vehiculo }}</td>
           <td class="px-4 py-2">{{ m.cliente.nombre }}</td>
           <td class="px-4 py-2">{{ m.proximo_km }}</td>
@@ -29,12 +48,6 @@
           <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay mantenimientos programados.</td>
         </tr>
         {% endfor %}
-        <div class="flex justify-end mb-4">
-          <a href="{% url 'mantenimientos_exportar' %}"
-             class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
-            Exportar CSV
-          </a>
-        </div>
       </tbody>
     </table>
   </div>

@@ -1,6 +1,7 @@
 # core/views.py
 from django.shortcuts import render
 from django.views.generic import ListView
+from django.http import HttpResponse
 from .models import Trabajo, CambioAceite, Cliente, Vehiculo
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView
@@ -8,7 +9,6 @@ from .forms import ClienteForm, VehiculoForm, TrabajoForm
 from .models import Cliente, Vehiculo, Trabajo, CambioAceite
 from django.utils import timezone
 from django.views.generic import UpdateView, DeleteView
-from django.urls import reverse_lazy
 from django.db.models import Q
 from datetime import datetime
 from django.contrib.messages.views import SuccessMessageMixin
@@ -17,12 +17,13 @@ from django.http import HttpResponse
 import csv
 import os
 from django.conf import settings
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from django.utils import timezone
 from .models import Trabajo
-
+from .forms import ServicioFormSet
+from django.views.generic import DeleteView
 def generar_factura(request, pk):
     trabajo = get_object_or_404(Trabajo, pk=pk)
     cliente = trabajo.vehiculo.cliente
@@ -163,7 +164,7 @@ class ClienteDelete(DeleteView):
         return super().delete(request, *args, **kwargs)
 
 # Para Vehículos
-class VehiculoUpdate(SuccessMessageMixin, UpdateView):
+class VehiculoUpdate(UpdateView):
     model = Vehiculo
     form_class = VehiculoForm
     template_name = 'core/vehiculo_form.html'
@@ -180,23 +181,37 @@ class VehiculoDelete(DeleteView):
         return super().delete(request, *args, **kwargs)
 
 # Para Trabajos
-class TrabajoUpdate(SuccessMessageMixin, CreateView):
+class TrabajoUpdate(UpdateView):
     model = Trabajo
-    form_class = TrabajoForm
+    fields = ['vehiculo', 'tecnico', 'fecha_ingreso', 'fecha_salida']
     template_name = 'core/trabajo_form.html'
     success_url = reverse_lazy('lista_trabajos')
-    success_message = "Trabajo #{object.id} creado correctamente."
 
-class TrabajoDelete(CreateView):
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['servicios'] = ServicioFormSet(self.request.POST, instance=self.object)
+        else:
+            data['servicios'] = ServicioFormSet(instance=self.object)
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save()
+        servicios = ServicioFormSet(self.request.POST, instance=self.object)
+        if servicios.is_valid():
+            servicios.save()
+        return redirect(self.success_url)
+
+class TrabajoDelete(DeleteView):
     model = Trabajo
     template_name = 'core/confirm_delete.html'
     success_url = reverse_lazy('lista_trabajos')
-    success_message = "Trabajo #{object.id} actualizado correctamente."
+
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
         messages.success(request, f"Trabajo #{obj.id} eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
-
+    
 class ListaTrabajos(ListView):
     model = Trabajo
     template_name = 'core/lista_trabajos.html'
@@ -238,11 +253,9 @@ class MantenimientoList(ListView):
 
     def get_queryset(self):
         mantenimientos = []
-        # Recorre cada registro de cambio de aceite
         for cambio in CambioAceite.objects.select_related('vehiculo__cliente'):
             veh = cambio.vehiculo
             km_restantes = cambio.proximo_km - veh.kilometraje_actual
-            # Calcula meses restantes (aprox.)
             dias = (cambio.proxima_fecha - cambio.fecha_cambio).days
             meses_restantes = dias / 30
             mantenimientos.append({
@@ -254,6 +267,15 @@ class MantenimientoList(ListView):
                 'meses_restantes': round(meses_restantes, 1),
             })
         return mantenimientos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        due = 0
+        for m in context['mantenimientos']:
+            if m['km_restantes'] <= 500 or m['meses_restantes'] <= 1:
+                due += 1
+        context['due_count'] = due
+        return context
 
 # Create your views here.
 class ClienteCreate(SuccessMessageMixin, CreateView):
@@ -269,27 +291,23 @@ class VehiculoCreate(SuccessMessageMixin, CreateView):
     template_name = 'core/vehiculo_form.html'
     success_url = reverse_lazy('lista_trabajos')
 
-class TrabajoCreate(SuccessMessageMixin, CreateView):
+class TrabajoCreate(CreateView):
     model = Trabajo
-    form_class = TrabajoForm
+    fields = ['vehiculo', 'tecnico', 'fecha_ingreso', 'fecha_salida']
     template_name = 'core/trabajo_form.html'
     success_url = reverse_lazy('lista_trabajos')
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['servicios'] = ServicioFormSet(self.request.POST)
+        else:
+            data['servicios'] = ServicioFormSet()
+        return data
+
     def form_valid(self, form):
-        # Al guardar el trabajo, actualiza kilometraje y crea CambioAceite si aplica
-        trabajo = form.save(commit=False)
-        trabajo.fecha_ingreso = timezone.now()
-        trabajo.save()
-        # Actualizar kilometraje del vehículo
-        veh = trabajo.vehiculo
-        if trabajo.kilometraje_registrado and trabajo.kilometraje_registrado > veh.kilometraje_actual:
-            veh.kilometraje_actual = trabajo.kilometraje_registrado
-            veh.save()
-        # Si es cambio de aceite, registrar también en CambioAceite
-        if trabajo.tipo == 'ACE':
-            CambioAceite.objects.create(
-                vehiculo=veh,
-                fecha_cambio=trabajo.fecha_salida or timezone.now().date(),
-                km_cambio=trabajo.kilometraje_registrado or veh.kilometraje_actual
-            )
-        return super().form_valid(form)
+        self.object = form.save()
+        servicios = ServicioFormSet(self.request.POST, instance=self.object)
+        if servicios.is_valid():
+            servicios.save()
+        return redirect(self.success_url)
