@@ -26,6 +26,7 @@ from .forms import ServicioFormSet
 from django.views.generic import DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 @login_required(login_url='login')
@@ -232,10 +233,22 @@ class TrabajoUpdate(LoginRequiredMixin, UpdateView):
             servicios.save()
         return redirect(self.success_url)
 
-class TrabajoDelete(LoginRequiredMixin, DeleteView):
+class TrabajoDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Trabajo
     template_name = 'core/confirm_delete.html'
     success_url = reverse_lazy('lista_trabajos')
+    def test_func(self):
+        return self.request.user.groups.filter(name='Dueño').exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para eliminar trabajos.")
+        return redirect('lista_trabajos')
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        messages.success(request, f"Trabajo #{obj.id} eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)
+
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
