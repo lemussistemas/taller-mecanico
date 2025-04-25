@@ -1,54 +1,76 @@
+<!-- core/templates/core/mantenimientos.html -->
 {% extends "core/base.html" %}
-{% block title %}Mantenimientos{% endblock %}
+
+{% block title %}Próximos Mantenimientos{% endblock %}
+
 {% block content %}
-  <h1 class="text-3xl font-semibold mb-6">Próximos Cambios de Aceite</h1>
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-semibold text-gray-800">Próximos Cambios de Aceite</h1>
+  <a href="{% url 'mantenimientos_exportar' %}"
+     class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+    <!-- Icono CSV -->
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6m2 0v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6h14z"></path>
+    </svg>
+    Exportar CSV
+  </a>
+</div>
 
-  <!-- Toast de alerta Alpine.js -->
-  <div
-    x-data="{ show: {{ due_count }} > 0 }"
-    x-show="show"
-    x-transition
-    x-init="setTimeout(() => show = false, 5000)"
-    class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow">
-    ¡Tienes {{ due_count }} mantenimiento(s) próximos a vencer!
+<!-- Toast Alpine.js -->
+{% if due_count > 0 %}
+<div x-data="{ open: true }"
+     x-show="open"
+     x-init="setTimeout(() => open = false, 5000)"
+     class="fixed top-4 right-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg shadow-lg flex items-start space-x-3">
+  <div class="flex-shrink-0">
+    <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01"></path>
+    </svg>
   </div>
+  <div class="flex-1">
+    <p class="font-medium text-yellow-800">Atención</p>
+    <p class="text-sm text-yellow-700">Tienes {{ due_count }} mantenimientos próximos a vencer.</p>
+  </div>
+</div>
+{% endif %}
 
-  <!-- Botón Exportar CSV -->
-  <div class="flex justify-end mb-4">
-    <a href="{% url 'mantenimientos_exportar' %}"
-       class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
-      Exportar CSV
-    </a>
-  </div>
-
-  <div class="overflow-x-auto bg-white shadow rounded">
-    <table class="min-w-full">
-      <thead class="bg-gray-100 text-left">
-        <tr>
-          <th class="px-4 py-3">Vehículo</th>
-          <th class="px-4 py-3">Cliente</th>
-          <th class="px-4 py-3">Próximo km</th>
-          <th class="px-4 py-3">Km rest.</th>
-          <th class="px-4 py-3">Próx. fecha</th>
-          <th class="px-4 py-3">Meses rest.</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for m in mantenimientos %}
-        <tr class="border-b hover:bg-gray-50 {% if m.km_restantes <= 500 or m.meses_restantes <= 1 %}bg-red-100{% endif %}">
-          <td class="px-4 py-2">{{ m.vehiculo }}</td>
-          <td class="px-4 py-2">{{ m.cliente.nombre }}</td>
-          <td class="px-4 py-2">{{ m.proximo_km }}</td>
-          <td class="px-4 py-2">{{ m.km_restantes }}</td>
-          <td class="px-4 py-2">{{ m.proxima_fecha|date:"Y-m-d" }}</td>
-          <td class="px-4 py-2">{{ m.meses_restantes }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay mantenimientos programados.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="overflow-x-auto bg-white shadow-md rounded-lg">
+  <table class="min-w-full divide-y divide-gray-200 table-auto">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próx. km</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Km rest.</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próx. fecha</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meses rest.</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      {% for m in mantenimientos %}
+      <tr class="hover:bg-gray-50">
+        <!-- Columna Estado con badge -->
+        <td class="px-4 py-2">
+          {% if m.km_restantes <= 500 or m.meses_restantes <= 1 %}
+            <span class="inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">Urgente</span>
+          {% else %}
+            <span class="inline-block px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">OK</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 text-gray-700">{{ m.vehiculo }}</td>
+        <td class="px-4 py-2 text-gray-700">{{ m.cliente.nombre }}</td>
+        <td class="px-4 py-2 text-gray-700">{{ m.proximo_km }}</td>
+        <td class="px-4 py-2 text-gray-700">{{ m.km_restantes }}</td>
+        <td class="px-4 py-2 text-gray-700">{{ m.proxima_fecha|date:"Y-m-d" }}</td>
+        <td class="px-4 py-2 text-gray-700">{{ m.meses_restantes }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="px-4 py-6 text-center text-gray-500">No hay mantenimientos programados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

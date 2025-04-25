@@ -1,41 +1,50 @@
 <!-- core/templates/core/cliente_form.html -->
 {% extends "core/base.html" %}
-{% block title %}Cliente – {{ form.instance.nombre|default:"Nuevo" }}{% endblock %}
+{% load widget_tweaks %}
+
+
+{% block title %}{{ form.instance.pk|yesno:"Editar Cliente,Nuevo Cliente" }}{% endblock %}
+
 {% block content %}
-  <h1 class="text-3xl font-semibold mb-6">
-    {{ form.instance.pk|yesno:"Editar Cliente,Nuevo Cliente" }}
-  </h1>
-  <form method="post" class="bg-white shadow rounded p-6 space-y-4">
+<div class="max-w-lg mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+  <div class="bg-blue-600 px-6 py-4">
+    <h1 class="text-2xl font-bold text-white">
+      {{ form.instance.pk|yesno:"Editar Cliente,Nuevo Cliente" }}
+    </h1>
+  </div>
+  <form method="post" class="px-6 py-6 space-y-6">
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div>
-      {{ form.nombre.label_tag }}<br>
-      {{ form.nombre }}
-      {{ form.nombre.errors }}
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label for="id_nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+        {{ form.nombre|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
+        {{ form.nombre.errors }}
+      </div>
+      <div>
+        <label for="id_telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+        {{ form.telefono|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
+        {{ form.telefono.errors }}
+      </div>
+      <div>
+        <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+        {{ form.email|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
+        {{ form.email.errors }}
+      </div>
+      <div>
+        <label for="id_direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
+        {{ form.direccion|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
+        {{ form.direccion.errors }}
+      </div>
     </div>
-    <div>
-      {{ form.telefono.label_tag }}<br>
-      {{ form.telefono }}
-      {{ form.telefono.errors }}
-    </div>
-    <div>
-      {{ form.email.label_tag }}<br>
-      {{ form.email }}
-      {{ form.email.errors }}
-    </div>
-    <div>
-      {{ form.direccion.label_tag }}<br>
-      {{ form.direccion }}
-      {{ form.direccion.errors }}
-    </div>
-    <div class="flex space-x-2">
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-        Guardar
-      </button>
-      <a href="{% url 'cliente_list' %}"
-         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+    <div class="flex justify-end space-x-4 mt-4">
+      <a href="{% url 'cliente_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
         Cancelar
       </a>
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition">
+        Guardar
+      </button>
     </div>
   </form>
+</div>
 {% endblock %}

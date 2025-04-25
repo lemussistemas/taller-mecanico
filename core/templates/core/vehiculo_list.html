@@ -1,49 +1,74 @@
+<!-- core/templates/core/vehiculo_list.html -->
 {% extends "core/base.html" %}
+{% load widget_tweaks %}
+
 {% block title %}Vehículos{% endblock %}
+
 {% block content %}
-  <h1 class="text-3xl font-semibold mb-6">Vehículos</h1>
-  <div class="overflow-x-auto bg-white shadow rounded">
-    <table class="min-w-full">
-      <thead class="bg-gray-100 text-left">
-        <tr>
-          <th class="px-4 py-3">Placa</th>
-          <th class="px-4 py-3">Marca</th>
-          <th class="px-4 py-3">Modelo</th>
-          <th class="px-4 py-3">Año</th>
-          <th class="px-4 py-3">Cliente</th>
-          <th class="px-4 py-3">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for v in vehiculos %}
-        <tr class="border-b hover:bg-gray-50">
-          <td class="px-4 py-2">{{ v.placa }}</td>
-          <td class="px-4 py-2">{{ v.marca }}</td>
-          <td class="px-4 py-2">{{ v.modelo }}</td>
-          <td class="px-4 py-2">{{ v.anio }}</td>
-          <td class="px-4 py-2">{{ v.cliente.nombre }}</td>
-          <td class="px-4 py-2 space-x-2">
-            <a href="{% url 'vehiculo_edit' v.pk %}" class="text-blue-600 hover:underline">Editar</a>
-            <a href="{% url 'vehiculo_delete' v.pk %}" class="text-red-600 hover:underline">Eliminar</a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay vehículos.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% if is_paginated %}
-    <div class="mt-6 flex justify-center items-center space-x-2">
-      {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">« Anterior</a>
-      {% endif %}
-      <span class="px-3 py-1 bg-gray-100 rounded">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">Siguiente »</a>
-      {% endif %}
-    </div>
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-semibold text-gray-800">Vehículos</h1>
+  <a href="{% url 'vehiculo_nuevo' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Nuevo Vehículo
+  </a>
+</div>
+
+<div class="overflow-x-auto bg-white shadow-md rounded-lg">
+  <table class="min-w-full divide-y divide-gray-200 table-auto">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modelo</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Año</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      {% for veh in vehiculos %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm text-gray-700">{{ veh.placa }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">{{ veh.marca }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">{{ veh.modelo }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">{{ veh.anio }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">{{ veh.kilometraje_actual }}</td>
+        <td class="px-4 py-2 text-sm space-x-2">
+          <a href="{% url 'vehiculo_edit' veh.pk %}" class="text-indigo-600 hover:underline" title="Editar">
+            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
+            </svg>
+          </a>
+          {% if perms.core.delete_vehiculo %}
+          <a href="{% url 'vehiculo_delete' veh.pk %}" class="text-red-600 hover:underline" title="Eliminar">
+            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="px-4 py-6 text-center text-gray-500">No hay vehículos registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<div class="mt-6 flex justify-center space-x-2">
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">« Anterior</a>
   {% endif %}
+  <span class="px-3 py-1 bg-gray-100 rounded">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">Siguiente »</a>
+  {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}
