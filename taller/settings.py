@@ -25,6 +25,7 @@ SECRET_KEY = 'django-insecure-490fsujk=48zz(m1z1i$@=qrzz0fh!4u5tpst)j6#@!5o$1p$3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 ALLOWED_HOSTS = []
 
 
@@ -127,3 +128,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Redirige a /login/ cuando un usuario anónimo intente entrar a una vista protegida
+LOGIN_URL = '/login/'

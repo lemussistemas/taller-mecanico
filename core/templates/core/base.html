@@ -10,8 +10,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
-
-  <!-- Navbar -->
+  {% block nav %}
+  {% if user.is_authenticated %}
   <nav class="bg-white shadow flex-none">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
       <div class="text-xl font-bold text-gray-800">Taller Mecánico</div>
@@ -22,13 +22,15 @@
         <a href="{% url 'vehiculo_list' %}" class="text-gray-600 hover:text-gray-900">Vehículos</a>
       </div>
       <div class="space-x-2">
-        <a href="{% url 'cliente_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">+ Cliente</a>
-        <a href="{% url 'vehiculo_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">+ Vehículo</a>
-        <a href="{% url 'trabajo_nuevo' %}" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">+ Trabajo</a>
+        <a href="{% url 'cliente_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded">+ Cliente</a>
+        <a href="{% url 'vehiculo_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded">+ Vehículo</a>
+        <a href="{% url 'trabajo_nuevo' %}" class="px-3 py-1 bg-green-500 text-white rounded">+ Trabajo</a>
+        <a href="{% url 'logout' %}" class="text-gray-600 hover:text-gray-900">Salir</a>
       </div>
     </div>
   </nav>
-
+  {% endif %}
+{% endblock %}
   <!-- Messages -->
   {% if messages %}
   <div class="container mx-auto px-4 mt-4">

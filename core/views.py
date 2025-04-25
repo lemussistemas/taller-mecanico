@@ -24,7 +24,11 @@ from django.utils import timezone
 from .models import Trabajo
 from .forms import ServicioFormSet
 from django.views.generic import DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url='login')
 def generar_factura(request, pk):
     trabajo = get_object_or_404(Trabajo, pk=pk)
     cliente = trabajo.vehiculo.cliente
@@ -100,7 +104,7 @@ def generar_factura(request, pk):
             f"Total: L {servicio.total:.2f}")
         y -= 25
         
-   # Detalle de todos los servicios
+   
      # Detalle de servicios y total
     p.setFont("Helvetica-Bold", 14)
     p.drawString(50, y, "Servicios:")
@@ -132,7 +136,7 @@ def generar_factura(request, pk):
   
 
 
-
+@login_required(login_url='login')
 def exportar_mantenimientos_csv(request):
     # Generamos la respuesta como CSV
     ahora = timezone.now().date().isoformat()
@@ -156,14 +160,14 @@ def exportar_mantenimientos_csv(request):
 
     return response
 
-class ClienteList(ListView):
+class ClienteList(LoginRequiredMixin, ListView):
     model = Cliente
     template_name = 'core/cliente_list.html'
     context_object_name = 'clientes'
     ordering = ['nombre']
     paginate_by = 10
 
-class VehiculoList(ListView):
+class VehiculoList(LoginRequiredMixin, ListView):
     model = Vehiculo
     template_name = 'core/vehiculo_list.html'
     context_object_name = 'vehiculos'
@@ -173,14 +177,14 @@ class VehiculoList(ListView):
 
 
 # Para Clientes
-class ClienteUpdate(SuccessMessageMixin, CreateView):
+class ClienteUpdate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Cliente
     form_class = ClienteForm
     template_name = 'core/cliente_form.html'
     success_url = reverse_lazy('lista_trabajos')
     success_message = "Cliente «%(nombre)s» actualizado correctamente."
 
-class ClienteDelete(DeleteView):
+class ClienteDelete(LoginRequiredMixin, DeleteView):
     model = Cliente
     template_name = 'core/confirm_delete.html'
     success_url = reverse_lazy('lista_trabajos')
@@ -190,14 +194,14 @@ class ClienteDelete(DeleteView):
         return super().delete(request, *args, **kwargs)
 
 # Para Vehículos
-class VehiculoUpdate(UpdateView):
+class VehiculoUpdate(LoginRequiredMixin, UpdateView):
     model = Vehiculo
     form_class = VehiculoForm
     template_name = 'core/vehiculo_form.html'
     success_url = reverse_lazy('lista_trabajos')
     success_message = "Vehículo «%(placa)s» actualizado correctamente."
 
-class VehiculoDelete(DeleteView):
+class VehiculoDelete(LoginRequiredMixin, DeleteView):
     model = Vehiculo
     template_name = 'core/confirm_delete.html'
     success_url = reverse_lazy('lista_trabajos')
@@ -207,7 +211,7 @@ class VehiculoDelete(DeleteView):
         return super().delete(request, *args, **kwargs)
 
 # Para Trabajos
-class TrabajoUpdate(UpdateView):
+class TrabajoUpdate(LoginRequiredMixin, UpdateView):
     model = Trabajo
     fields = ['vehiculo', 'tecnico', 'fecha_ingreso', 'fecha_salida']
     template_name = 'core/trabajo_form.html'
@@ -228,7 +232,7 @@ class TrabajoUpdate(UpdateView):
             servicios.save()
         return redirect(self.success_url)
 
-class TrabajoDelete(DeleteView):
+class TrabajoDelete(LoginRequiredMixin, DeleteView):
     model = Trabajo
     template_name = 'core/confirm_delete.html'
     success_url = reverse_lazy('lista_trabajos')
@@ -238,7 +242,7 @@ class TrabajoDelete(DeleteView):
         messages.success(request, f"Trabajo #{obj.id} eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
     
-class ListaTrabajos(ListView):
+class ListaTrabajos(LoginRequiredMixin, ListView):
     model = Trabajo
     template_name = 'core/lista_trabajos.html'
     context_object_name = 'trabajos'
@@ -273,7 +277,7 @@ class ListaTrabajos(ListView):
 
         return qs
     
-class MantenimientoList(ListView):
+class MantenimientoList(LoginRequiredMixin, ListView):
     template_name = 'core/mantenimientos.html'
     context_object_name = 'mantenimientos'
 
@@ -304,20 +308,20 @@ class MantenimientoList(ListView):
         return context
 
 # Create your views here.
-class ClienteCreate(SuccessMessageMixin, CreateView):
+class ClienteCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Cliente
     form_class = ClienteForm
     template_name = 'core/cliente_form.html'
     success_url = reverse_lazy('lista_trabajos')
     success_message = "Cliente «%(nombre)s» creado correctamente."
 
-class VehiculoCreate(SuccessMessageMixin, CreateView):
+class VehiculoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Vehiculo
     form_class = VehiculoForm
     template_name = 'core/vehiculo_form.html'
     success_url = reverse_lazy('lista_trabajos')
 
-class TrabajoCreate(CreateView):
+class TrabajoCreate(LoginRequiredMixin, CreateView):
     model = Trabajo
     fields = ['vehiculo', 'tecnico', 'fecha_ingreso', 'fecha_salida']
     template_name = 'core/trabajo_form.html'
