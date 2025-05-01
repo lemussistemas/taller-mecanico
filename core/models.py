@@ -96,3 +96,25 @@ class Servicio(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()} (#{self.pk})"
+    
+   
+
+
+class EstimadoReparacion(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    fecha = models.DateField(auto_now_add=True)
+    notas = models.TextField(blank=True, null=True)
+    fecha = models.DateField(auto_now_add=True)
+    def __str__(self):
+        return f"Estimado #{self.id} - {self.vehiculo} ({self.fecha})"
+
+class DetalleEstimado(models.Model):
+    estimado = models.ForeignKey(EstimadoReparacion, related_name='detalles', on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=255)
+    costo_partes = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_mano_obra = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def total(self):
+        return self.costo_partes + self.costo_mano_obra

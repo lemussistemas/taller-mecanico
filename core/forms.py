@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Cliente, Vehiculo, Trabajo, Servicio
+from .models import Cliente, Vehiculo, Trabajo, Servicio, DetalleEstimado, EstimadoReparacion
+from django.forms import ModelForm
+
 
 class ClienteForm(forms.ModelForm):
     class Meta:
@@ -27,4 +29,18 @@ ServicioFormSet = inlineformset_factory(
     form=ServicioForm,
     extra=1,    # número de formularios en blanco
     can_delete=True
+)
+
+
+
+
+class EstimadoForm(ModelForm):
+    class Meta:
+        model = EstimadoReparacion
+        fields = ['cliente', 'vehiculo', 'notas']
+
+DetalleEstimadoFormSet = inlineformset_factory(
+    EstimadoReparacion, DetalleEstimado,
+    fields=['descripcion', 'costo_partes', 'costo_mano_obra'],
+    extra=1, can_delete=True
 )

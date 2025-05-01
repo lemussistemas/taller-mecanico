@@ -20,11 +20,14 @@
         <a href="{% url 'mantenimientos' %}" class="text-gray-600 hover:text-gray-900">Mantenimientos</a>
         <a href="{% url 'cliente_list' %}" class="text-gray-600 hover:text-gray-900">Clientes</a>
         <a href="{% url 'vehiculo_list' %}" class="text-gray-600 hover:text-gray-900">Vehículos</a>
+        <a href="{% url 'estimado_list' %}" class="text-gray-600 hover:text-gray-900">Estimados</a>
+
       </div>
       <div class="space-x-2">
         <a href="{% url 'cliente_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded">+ Cliente</a>
         <a href="{% url 'vehiculo_nuevo' %}" class="px-3 py-1 bg-blue-500 text-white rounded">+ Vehículo</a>
         <a href="{% url 'trabajo_nuevo' %}" class="px-3 py-1 bg-green-500 text-white rounded">+ Trabajo</a>
+        <a href="{% url 'nuevo_estimado' %}" class="px-3 py-1 bg-yellow-500 text-white rounded">+ Estimado</a>
         <a href="{% url 'logout' %}" class="text-gray-600 hover:text-gray-900">Salir</a>
       </div>
     </div>

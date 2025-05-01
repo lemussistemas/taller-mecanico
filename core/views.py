@@ -1,32 +1,26 @@
 # core/views.py
-from django.shortcuts import render
-from django.views.generic import ListView
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
-from .models import Trabajo, CambioAceite, Cliente, Vehiculo
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DetailView
-from .forms import ClienteForm, VehiculoForm, TrabajoForm
-from .models import Cliente, Vehiculo, Trabajo, CambioAceite
-from django.utils import timezone
-from django.views.generic import UpdateView, DeleteView
-from django.db.models import Q
-from datetime import datetime
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
-from django.http import HttpResponse
-import csv
-import os
+from django.db.models import Q
+from datetime import datetime
+from django.utils import timezone
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404, redirect
+import os
+import csv
+from django.views import View
+
+from .models import Cliente, Vehiculo, Trabajo, CambioAceite, Servicio, EstimadoReparacion, DetalleEstimado
+from .forms import ClienteForm, VehiculoForm, TrabajoForm, ServicioFormSet, EstimadoForm, DetalleEstimadoFormSet
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from django.utils import timezone
-from .models import Trabajo
-from .forms import ServicioFormSet
-from django.views.generic import DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import UserPassesTestMixin
+
 
 
 @login_required(login_url='login')
@@ -354,3 +348,118 @@ class TrabajoCreate(LoginRequiredMixin, CreateView):
         if servicios.is_valid():
             servicios.save()
         return redirect(self.success_url)
+    
+
+  
+
+
+    
+
+
+def generar_estimado_pdf(request, pk):
+    estimado = get_object_or_404(EstimadoReparacion, pk=pk)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="estimado_{estimado.id}.pdf"'
+
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+    y = height - 50
+
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(200, y, "Estimado de Reparación")
+    y -= 40
+
+    p.setFont("Helvetica", 12)
+    p.drawString(50, y, f"Cliente: {estimado.cliente.nombre}")
+    y -= 20
+    p.drawString(50, y, f"Vehículo: {estimado.vehiculo.marca} {estimado.vehiculo.modelo} ({estimado.vehiculo.placa})")
+    y -= 20
+    p.drawString(50, y, f"Fecha: {estimado.fecha.isoformat()}")
+    y -= 30
+
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y, "Detalles:")
+    y -= 20
+    p.setFont("Helvetica", 12)
+
+    total = 0
+    for detalle in estimado.detalles.all():
+        if y < 100:
+            p.showPage()
+            y = height - 50
+        p.drawString(60, y, f"{detalle.descripcion} | Partes: L {detalle.costo_partes:.2f} | Mano de Obra: L {detalle.costo_mano_obra:.2f} | Total: L {detalle.total:.2f}")
+        total += detalle.total
+        y -= 20
+
+    y -= 10
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y, f"TOTAL: L {total:.2f}")
+
+    p.showPage()
+    p.save()
+    return response
+
+
+class EstimadoListView(ListView):
+    model = EstimadoReparacion
+    template_name = 'core/estimado_list.html'
+    context_object_name = 'estimados'
+
+class EstimadoCreateView(View):
+    template_name = 'core/estimado_form.html'
+
+    def get(self, request, *args, **kwargs):
+        form = EstimadoForm()
+        formset = DetalleEstimadoFormSet()
+        return render(request, self.template_name, {'form': form, 'formset': formset})
+
+    def post(self, request, *args, **kwargs):
+        form = EstimadoForm(request.POST)
+        formset = DetalleEstimadoFormSet(request.POST)
+
+        if form.is_valid() and formset.is_valid():
+            estimado = form.save()
+            detalles = formset.save(commit=False)
+            for detalle in detalles:
+                detalle.estimado = estimado
+                detalle.save()
+            return redirect('estimado_list')  # o la vista que prefieras
+        return render(request, self.template_name, {'form': form, 'formset': formset})
+    
+
+
+class EstimadoUpdateView(UpdateView):
+    model = EstimadoReparacion
+    form_class = EstimadoForm
+    template_name = 'core/estimado_form.html'
+    success_url = reverse_lazy('estimado_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = DetalleEstimadoFormSet(self.request.POST, instance=self.object)
+        else:
+            context['formset'] = DetalleEstimadoFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            messages.success(self.request, "Estimado actualizado correctamente.")
+            return redirect(self.success_url)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class EstimadoDeleteView(DeleteView):
+    model = EstimadoReparacion
+    template_name = 'core/confirm_delete.html'
+    success_url = reverse_lazy('estimado_list')
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        messages.success(request, f"Estimado #{obj.id} eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)

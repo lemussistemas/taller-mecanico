@@ -33,6 +33,21 @@ urlpatterns = [
 
 #factura
 path('trabajos/<int:pk>/factura/', views.generar_factura, name='trabajo_factura'),
+
+# core/urls.py
+path('estimados/nuevo/', views.EstimadoCreateView.as_view(), name='nuevo_estimado'),
+path('estimado/nuevo/', views.EstimadoCreateView.as_view(), name='estimado_nuevo'),
+
+path('estimados/', views.EstimadoListView.as_view(), name='estimado_list'),
+path('estimados/<int:pk>/editar/', views.EstimadoUpdateView.as_view(), name='estimado_edit'),
+path('estimados/<int:pk>/eliminar/', views.EstimadoDeleteView.as_view(), name='estimado_delete'),
+path('estimados/<int:pk>/pdf/', views.generar_estimado_pdf, name='estimado_pdf'),
+path('estimados/<int:pk>/editar/', views.EstimadoUpdateView.as_view(), name='estimado_edit'),
+path('estimados/<int:pk>/eliminar/', views.EstimadoDeleteView.as_view(), name='estimado_delete'),
+
+
+
+
 ]
 
 
