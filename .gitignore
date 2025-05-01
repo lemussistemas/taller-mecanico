@@ -1,3 +1,42 @@
-"db.sqlite3" 
-"__pycache__/" 
-"venv/" 
+# Base de datos
+db.sqlite3
+
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Archivos de entorno o configuración local
+*.env
+.env
+
+# Archivos de logs o temporales
+*.log
+*.tmp
+*.swp
+
+# Archivos de compilación o editores
+*.DS_Store
+.idea/
+.vscode/
+*.bak
+
+# Archivos generados por ReportLab u otros
+*.pdf
+
+# Docker
+*.pid
+*.db
+*.sock
+
+# Static/media (si no los versionás)
+staticfiles/
+media/
+taller/settings.py
