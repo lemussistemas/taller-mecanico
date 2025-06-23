@@ -31,26 +31,22 @@
         <td class="px-4 py-2 text-sm text-gray-700">{{ estimado.cliente }}</td>
         <td class="px-4 py-2 text-sm text-gray-700">{{ estimado.vehiculo }}</td>
         <td class="px-4 py-2 text-sm text-gray-700">{{ estimado.notas|default:"—" }}</td>
-        <td class="px-4 py-2 text-sm text-gray-700">{{ estimado.created_at|date:"d/m/Y H:i" }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">{{ estimado.fecha|date:"d/m/Y" }}</td>
         <td class="px-4 py-2 text-sm space-x-2">
-            <td class="px-4 py-2 text-sm space-x-2">
-                <a href="{% url 'estimado_edit' estimado.pk %}" title="Editar"
-                   class="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-600 hover:text-indigo-900 border border-indigo-200 rounded">
-                  ✏️ Editar
-                </a>
-              
-                <a href="{% url 'estimado_delete' estimado.pk %}" title="Eliminar"
-                   class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 border border-red-200 rounded">
-                  🗑️ Eliminar
-                </a>
-              
-                <a href="{% url 'estimado_pdf' estimado.pk %}" title="Descargar PDF"
-                   class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-600 hover:text-green-800 border border-green-200 rounded">
-                  🧾 PDF
-                </a>
-              </td>
-              
-          <!-- Aquí podrías agregar más acciones en el futuro, como editar o generar PDF -->
+          <a href="{% url 'estimado_edit' estimado.pk %}" title="Editar"
+             class="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-600 hover:text-indigo-900 border border-indigo-200 rounded">
+            ✏️ Editar
+          </a>
+        
+          <a href="{% url 'estimado_delete' estimado.pk %}" title="Eliminar"
+             class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 border border-red-200 rounded">
+            🗑️ Eliminar
+          </a>
+        
+          <a href="{% url 'estimado_pdf' estimado.pk %}" title="Descargar PDF"
+             class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-600 hover:text-green-800 border border-green-200 rounded">
+            📄 PDF
+          </a>
         </td>
       </tr>
       {% empty %}

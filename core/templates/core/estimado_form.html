@@ -67,4 +67,84 @@
     </div>
   </form>
 </div>
+{% endblock %}{% extends "core/base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Nuevo Estimado de Reparación{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-6">
+  <div class="bg-yellow-600 px-6 py-4">
+    <h1 class="text-2xl font-bold text-white">Nuevo Estimado de Reparación</h1>
+  </div>
+
+  <form method="post" class="px-6 py-6 space-y-6">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="id_cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
+        {{ form.cliente|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" }}
+        {{ form.cliente.errors }}
+      </div>
+      <div>
+        <label for="id_vehiculo" class="block text-sm font-medium text-gray-700">Vehículo</label>
+        {{ form.vehiculo|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" }}
+        {{ form.vehiculo.errors }}
+      </div>
+    </div>
+
+    <!-- Campo de notas -->
+    <div>
+      <label for="id_notas" class="block text-sm font-medium text-gray-700">Notas</label>
+      {{ form.notas|add_class:"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" }}
+      {{ form.notas.errors }}
+    </div>
+
+    <h2 class="text-xl font-semibold mt-8">Detalles del Estimado</h2>
+
+    {{ formset.non_form_errors }}
+    {{ formset.management_form }}
+
+    <div class="space-y-4">
+      {% for form in formset %}
+        <div class="p-4 bg-gray-50 rounded border">
+          {{ form.non_field_errors }}
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              {{ form.descripcion.label_tag }}
+              {{ form.descripcion|add_class:"w-full mt-1 rounded-md border-gray-300 shadow-sm" }}
+              {{ form.descripcion.errors }}
+            </div>
+            <div>
+              {{ form.costo_partes.label_tag }}
+              {{ form.costo_partes|add_class:"w-full mt-1 rounded-md border-gray-300 shadow-sm" }}
+              {{ form.costo_partes.errors }}
+            </div>
+            <div>
+              {{ form.costo_mano_obra.label_tag }}
+              {{ form.costo_mano_obra|add_class:"w-full mt-1 rounded-md border-gray-300 shadow-sm" }}
+              {{ form.costo_mano_obra.errors }}
+            </div>
+          </div>
+
+          {% if formset.can_delete %}
+          <div class="mt-4">
+            <label class="inline-flex items-center space-x-2">
+              {{ form.DELETE }} <span class="text-sm text-red-600">Eliminar este detalle</span>
+            </label>
+          </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="flex justify-end space-x-4 mt-6">
+      <a href="{% url 'estimado_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">Cancelar</a>
+      <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-md shadow hover:bg-yellow-700 transition">Guardar Estimado</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

@@ -32,7 +32,7 @@
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico</th>
-        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servicios</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingreso</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salida</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ganancia</th>
@@ -46,10 +46,24 @@
         <td class="px-4 py-2 text-sm text-gray-700">{{ t.vehiculo }}</td>
         <td class="px-4 py-2 text-sm text-gray-700">{{ t.tecnico }}</td>
         <td class="px-4 py-2 text-sm">
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">{{ t.get_tipo_display }}</span>
+          <div class="space-y-1">
+            {% for servicio in t.servicios.all %}
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                {{ servicio.get_tipo_display }}
+              </span>
+            {% empty %}
+              <span class="text-gray-400 text-xs">Sin servicios</span>
+            {% endfor %}
+          </div>
         </td>
         <td class="px-4 py-2 text-sm text-gray-700">{{ t.fecha_ingreso|date:"Y-m-d H:i" }}</td>
-        <td class="px-4 py-2 text-sm text-gray-700">{{ t.fecha_salida|date:"Y-m-d H:i" }}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">
+          {% if t.fecha_salida %}
+            {{ t.fecha_salida|date:"Y-m-d H:i" }}
+          {% else %}
+            <span class="text-gray-400">En proceso</span>
+          {% endif %}
+        </td>
         <td class="px-4 py-2 text-sm text-gray-700">L {{ t.ganancia }}</td>
         <td class="px-4 py-2 text-sm space-x-2">
           <a href="{% url 'trabajo_edit' t.pk %}" class="text-indigo-600 hover:underline" title="Editar">
