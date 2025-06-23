@@ -96,16 +96,13 @@ class Servicio(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()} (#{self.pk})"
-    
-   
-
 
 class EstimadoReparacion(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     fecha = models.DateField(auto_now_add=True)
     notas = models.TextField(blank=True, null=True)
-    fecha = models.DateField(auto_now_add=True)
+    
     def __str__(self):
         return f"Estimado #{self.id} - {self.vehiculo} ({self.fecha})"
 
